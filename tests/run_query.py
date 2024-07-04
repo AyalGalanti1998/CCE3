@@ -37,7 +37,7 @@ def process_queries(input_file_path, output_file_path):
 
     # Step 3: Save responses to the output file
     with open(output_file_path, 'w') as file:
-        for query, response in enumerate(responses):
+        for query, response in responses:
             file.write(f"query: {query}\n")
             file.write(f"response: {response}\n")
 
