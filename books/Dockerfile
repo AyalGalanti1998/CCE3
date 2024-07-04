@@ -1,17 +1,10 @@
-FROM python:3.12.3-slim
+FROM python:3.8-slim
 
 WORKDIR /app
 
-COPY . /app
-
-COPY requirements.txt .
-
+COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
 
 COPY . .
-
-EXPOSE 5001
-
-ENV FLASK_APP=books.py
 
 CMD ["python", "books.py"]
