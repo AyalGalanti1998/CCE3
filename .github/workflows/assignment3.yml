@@ -1,8 +1,6 @@
 name: assignment3
-
 on:
   push:
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -63,6 +61,10 @@ jobs:
       - name: Start Docker Container
         if: success()
         run: docker-compose up -d
+
+      - name: Wait for Container to Start
+        if: success()
+        run: sleep 10
 
       - name: Check Container Status
         if: success()
