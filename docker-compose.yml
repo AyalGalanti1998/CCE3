@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  mongo:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+
+  books:
+    build: ./books
+    restart: always
+    volumes:
+      - type: bind
+        source: ./books
+        target: /app
+    ports:
+      - "5001:80"
+    environment:
+       - MONGO_URL=mongodb://mongo:27017/BooksDB
+       - PORT=80
+    depends_on:
+      - "mongo"
+
+
+
