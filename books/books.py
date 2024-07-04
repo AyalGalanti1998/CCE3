@@ -1,12 +1,8 @@
-import json
-from json import dumps
-
 import pymongo
 from flask import Flask, request, jsonify
 from flask_restful import Resource, Api, reqparse, abort
 import requests
 import uuid
-from pymongo import MongoClient
 
 app = Flask(__name__)
 api = Api(app)
@@ -19,7 +15,6 @@ db = client["library"]  # 'library' is the database name
 books = db["books"]  # 'books' collection
 ratings = db["ratings"]  # 'ratings' collection
 usedIds = db["usedId"]
-
 
 
 class Books(Resource):
@@ -64,6 +59,14 @@ class Books(Resource):
         if books.find_one({'ISBN': args['ISBN']}):
             return {'error': 'A book with the same ISBN already exists'}, 422
 
+        # Fetch book data from an external API using the ISBN
+        try:
+            response = requests.get(f'{BASE_URL}?q=isbn:{args["ISBN"]}')
+            if response.json().get('totalItems', 0) == 0 or not response:
+                return {'error': 'Book not found in external API'}, 400
+        except Exception as e:
+            return {'error': 'Internal Server Error'}, 500
+
         # Generate a unique ID for the book
         while True:
             book_id = str(uuid.uuid4())
@@ -71,11 +74,6 @@ class Books(Resource):
                 usedIds.insert_one({'BookID': book_id})
                 break
 
-        # Fetch book data from an external API using the ISBN
-        try:
-            response = requests.get(f'{BASE_URL}?q=isbn:{args["ISBN"]}')
-        except Exception as e:
-            return {'error': 'Internal Server Error'}, 500
         book_data = response.json()['items'][0]['volumeInfo'] if response.ok and 'items' in response.json() else {}
 
         # Handle authors data, defaulting to "missing" if not available
@@ -288,6 +286,7 @@ class Top(Resource):
             'average': book['average']
         } for book in top_books]
         return result
+
 
 api.add_resource(Books, '/books')
 api.add_resource(Book, '/books/<string:book_id>')
