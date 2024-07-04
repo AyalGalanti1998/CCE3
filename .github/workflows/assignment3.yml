@@ -177,9 +177,6 @@ jobs:
       - name: Load Docker images from previous workflows
         run: docker load --input /tmp/image.tar
 
-      - name: Print log file contents
-        run: cat /tmp/log.txt
-
       - name: check books image is loaded
         run: docker image ls
 
@@ -190,8 +187,22 @@ jobs:
         if: success()
         run: sleep 10
 
-      - name: Print log file contents
-        run: cat /tmp/log.txt
+      - name: Check container status
+        run: |
+          docker container ls
+          docker ps --filter "ancestor=books:latest" --filter "status=running" -q && docker ps --filter "ancestor=mongo:latest" --filter "status=running" -q
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.12.2
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest
+          pip install requests
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
       - name: Execute POST requests for books
         run: |
@@ -214,7 +225,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: response
-          path: /tmp/response.txt
+          path: test/response.txt
 
       - name: Upload log file
         if: always()
