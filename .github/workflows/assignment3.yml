@@ -1,50 +1,63 @@
 name: assignment3
+
 on:
   push:
+
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
+      # Log the start time of the workflow
       - name: Log Start Time
-        run: echo -e "$(date -Iminutes)" > /tmp/log.txt
+        run: echo -e "$(date -Iminutes)\n" > /tmp/log.txt
 
+      # Log the submitters of the assignment
       - name: Submitters
-        run: echo -e "Ayal Galanti, Hila Ashkenazy, Tomer Sapir" >> /tmp/log.txt
+        run: echo -e "Ayal Galanti, Hila Ashkenazy, Tomer Sapir\n" >> /tmp/log.txt
 
+      # Print the contents of the log file
       - name: Print Log File Contents
         run: cat /tmp/log.txt
 
+      # Checkout the code from the repository
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      # Set up Docker Buildx for building multi-platform Docker images
       - name: Set Up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      # Log in to Docker Hub using credentials stored in GitHub Secrets
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
+      # Build and export the Docker image
       - name: Build and Export Docker Image
         uses: docker/build-push-action@v5
         with:
-          context: ./books
+          context: .
           tags: books:latest, ${{ secrets.DOCKER_USERNAME }}/books:latest
           outputs: type=docker,dest=/tmp/image.tar
 
+      # Handle build failure by logging it to the log file
       - name: Handle Build Failure
         if: failure()
         run: echo -e "image not able to be built" >> /tmp/log.txt
 
+      # Handle build success by logging it to the log file
       - name: Handle Build Success
         if: success()
         run: echo -e "image successfully built" >> /tmp/log.txt
 
+      # Print the final contents of the log file after build
       - name: Print Final Log File Contents
         run: cat /tmp/log.txt
 
+      # Upload the log file as an artifact
       - name: Upload Log File
         if: always()
         uses: actions/upload-artifact@v3
@@ -52,20 +65,54 @@ jobs:
           name: log
           path: /tmp/log.txt
 
+      # Upload the Docker image as an artifact
       - name: Upload Docker Image Artifact
         uses: actions/upload-artifact@v3
         with:
           name: books
           path: /tmp/image.tar
 
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # 1. Download and load the Docker image artifact
+      - name: Download books artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: books
+          path: /tmp
+      - name: Load Docker images from previous workflows
+        run: docker load --input /tmp/image.tar
+
+      # 2. Download and print the log artifact
+      - name: Download log artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: log
+          path: /tmp
+      - name: Print log file contents
+        run: cat /tmp/log.txt
+
+      # 3. Verify that the Docker image is loaded
+      - name: Check Docker Images
+        run: docker image ls
+
+      # 4. Start the Docker containers using docker-compose
       - name: Start Docker Container
         if: success()
         run: docker-compose up -d
 
+      # 5. Wait for the containers to start
       - name: Wait for Container to Start
         if: success()
         run: sleep 10
 
+      # 6. Check that the containers are running
       - name: Check Container Status
         if: success()
         run: |
@@ -75,6 +122,54 @@ jobs:
             echo "Container failed to run" >> /tmp/log.txt
           fi
 
+      # 7. Print the final log file after container check
       - name: Print Final Log File After Container Check
-        if: success()
         run: cat /tmp/log.txt
+
+      # 8. Set up Python and pytest environment
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.12.2
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest
+          pip install requests
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      # 9. Run pytest tests and check results
+      - name: Run pytest tests
+        run: |
+          cd tests
+          pytest -v assn3_tests.py > assn3_test_results.txt
+
+      - name: Handle Tests Failure
+        if: failure()
+        run: echo -e "tests failed" >> /tmp/log.txt
+
+      - name: Handle Tests Success
+        if: success()
+        run: echo -e "tests succeeded" >> /tmp/log.txt
+
+      # 10. Upload test results and log file
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: assn3_test_results
+          path: tests/assn3_test_results.txt
+
+      - name: Upload Log File
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: log
+          path: /tmp/log.txt
+          overwrite: true
+
+      # 11. Shut down Docker Compose
+      - name: Shut down Docker Compose
+        if: always()
+        run: docker-compose down
