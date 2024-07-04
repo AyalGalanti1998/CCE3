@@ -3,7 +3,7 @@ from json import dumps
 
 import pymongo
 from flask import Flask, request, jsonify
-from flask import Resource, Api, reqparse, abort
+from flask_restful import Resource, Api, reqparse, abort
 import requests
 import uuid
 from pymongo import MongoClient
@@ -297,4 +297,4 @@ api.add_resource(RateValues, '/ratings/<string:rate_id>/values')
 api.add_resource(Top, '/top')
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=80, debug=True)
+    app.run(host="0.0.0.0", port=5001, debug=True)
