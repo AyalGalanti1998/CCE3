@@ -24,12 +24,15 @@ def post_books(book_details):
             print(error_message)  # Specific error handling
 
 
-def process_queries(input_file_path, output_file_path):
-    # Step 1: Read queries from the input file
-    with open(input_file_path, 'r') as file:
-        queries = [query.strip() for query in file.readlines()]
+# Function to read queries from the file
+def read_queries(file_path):
+    with open(file_path, 'r') as file:
+        queries = file.readlines()
+    return [query.strip() for query in queries]
 
-    # Step 2: Make HTTP GET requests with the queries
+
+# Function to make HTTP GET requests with the queries
+def make_requests(queries):
     responses = []
     for query in queries:
         try:
@@ -39,19 +42,25 @@ def process_queries(input_file_path, output_file_path):
         except requests.exceptions.RequestException as e:
             responses.append(f"error {response.status_code}")
 
-    # Step 3: Save responses to the output file
-    with open(output_file_path, 'w') as file:
+    return responses
+
+
+# Function to save responses to a file
+def save_responses(file_path, responses):
+    with open(file_path, 'w') as file:
         for i, response in enumerate(responses):
-            file.write(f"query: qs-{i}\n")
-            file.write(f"response: {response}\n")
+            file.write(f"query: qs-{i}" + "\n")
+            file.write(f"response: {response}" + "\n")
 
 
 # Main function to read queries, make requests, and save responses
 def main():
-    post_books()  # Ensure this function is defined elsewhere and is called here if needed
+    post_books()
     queries_file = '../query.txt'
     responses_file = 'response.txt'
-    process_queries(queries_file, responses_file)
+    queries = read_queries(queries_file)
+    responses = make_requests(queries)
+    save_responses(responses_file, responses)
 
 
 if __name__ == "__main__":
