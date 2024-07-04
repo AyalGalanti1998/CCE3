@@ -7,10 +7,10 @@ jobs:
 
     steps:
       - name: Log Start Time
-        run: echo -e "$(date -Iminutes)\n" > /tmp/log.txt
+        run: echo -e "$(date -Iminutes)" > /tmp/log.txt
 
       - name: Submitters
-        run: echo -e "Ayal Galanti, Hila Ashkenazy, Tomer Sapir\n" >> /tmp/log.txt
+        run: echo -e "Ayal Galanti, Hila Ashkenazy, Tomer Sapir" >> /tmp/log.txt
 
       - name: Print Log File Contents
         run: cat /tmp/log.txt
