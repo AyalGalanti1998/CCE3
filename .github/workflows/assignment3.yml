@@ -217,8 +217,8 @@ jobs:
         run: |
           while read -r query; do
             response=$(curl -s "http://localhost:5001/books$query")
-            echo "query: $query" >> /tmp/response.txt
-            echo "response: $response" >> /tmp/response.txt
+            echo "query: $query" >> test/response.txt
+            echo "response: $response" >> test/response.txt
           done < query.txt
 
       - name: Upload response file
