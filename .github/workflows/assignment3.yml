@@ -160,3 +160,84 @@ jobs:
       - name: Shut down Docker Compose
         if: always()
         run: docker-compose down
+
+  query:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download books artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: books
+          path: /tmp
+
+      - name: Load Docker images from previous workflows
+        run: docker load --input /tmp/image.tar
+
+      - name: Download log artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: log
+          path: /tmp
+
+      - name: Print log file contents
+        run: cat /tmp/log.txt
+
+      - name: check books image is loaded
+        run: docker image ls
+
+      - name: Run Docker Compose
+        run: docker-compose up -d
+
+      - name: Wait for services to be healthy
+        run: |
+          echo "Waiting for services to be healthy..."
+          sleep 10  # Adjust the sleep time as needed
+
+      - name: Check container status
+        run: |
+          if docker ps --filter "ancestor=books:latest" --filter "status=running" -q && docker ps --filter "ancestor=mongo:latest" --filter "status=running" -q; then
+            echo -e "Container up and running" >> /tmp/log.txt
+          else
+            echo -e "Container failed to run" >> /tmp/log.txt
+          fi
+
+      - name: Print log file contents
+        run: cat /tmp/log.txt
+
+      - name: Execute POST requests for books
+        run: |
+          curl -X POST -H "Content-Type: application/json" -d '{"title":"Adventures of Huckleberry Finn","ISBN":"9780520343641","genre":"Fiction"}' http://localhost:5001/books
+          curl -X POST -H "Content-Type: application/json" -d '{"title":"The Best of Isaac Asimov","ISBN":"9780385050784","genre":"Science Fiction"}' http://localhost:5001/books
+          curl -X POST -H "Content-Type: application/json" -d '{"title":"Fear No Evil","ISBN":"9780394558783","genre":"Biography"}' http://localhost:5001/books
+          curl -X POST -H "Content-Type: application/json" -d '{"title":"The Adventures of Tom Sawyer","ISBN":"9780195810400","genre":"Fiction"}' http://localhost:5001/books
+          curl -X POST -H "Content-Type: application/json" -d '{"title":"I, Robot","ISBN":"9780553294385","genre":"Science Fiction"}' http://localhost:5001/books
+          curl -X POST -H "Content-Type: application/json" -d '{"title":"Second Foundation","ISBN":"9780553293364","genre":"Science Fiction"}' http://localhost:5001/books
+
+      - name: Read and execute queries
+        run: |
+          while read -r query; do
+            response=$(curl -s "http://localhost:5001/books$query")
+            echo "query: $query" >> /tmp/response.txt
+            echo "response: $response" >> /tmp/response.txt
+          done < query.txt
+
+      - name: Upload response file
+        uses: actions/upload-artifact@v4
+        with:
+          name: response
+          path: /tmp/response.txt
+
+      - name: Upload log file
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: log
+          path: /tmp/log.txt
+
+      - name: Shut down Docker Compose
+        if: always()
+        run: docker-compose down
