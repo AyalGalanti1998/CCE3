@@ -115,8 +115,8 @@ class Book(Resource):
                     return jsonify(book)
             else:
                 return jsonify({'error': 'Book not found'}), 404
-        except Exception as e:
-            return jsonify({'error': 'Database operation failed', 'details': str(e)}), 500
+        except Exception:
+            return jsonify({'error': 'Book not found'}), 404
 
     def delete(self, book_id):
         """
