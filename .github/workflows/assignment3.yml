@@ -1,9 +1,12 @@
 name: assignment3
+
 on:
   push:
+
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Log Start Time
         run: echo -e "$(date -Iminutes)\n" > /tmp/log.txt
@@ -27,7 +30,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build and Export Docker Image
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v5
         with:
           context: ./books
           tags: books:latest, ${{ secrets.DOCKER_USERNAME }}/books:latest
@@ -46,13 +49,13 @@ jobs:
 
       - name: Upload Log File
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: log
           path: /tmp/log.txt
 
       - name: Upload Docker Image Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: books
           path: /tmp/image.tar
