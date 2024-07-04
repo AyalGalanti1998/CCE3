@@ -217,22 +217,15 @@ jobs:
         run: |
           while read -r query; do
             response=$(curl -s "http://localhost:5001/books$query")
-            echo "query: $query" >> test/response.txt
-            echo "response: $response" >> test/response.txt
+            echo "query: $query" >> tests/response.txt
+            echo "response: $response" >> tests/response.txt
           done < query.txt
 
       - name: Upload response file
         uses: actions/upload-artifact@v4
         with:
           name: response
-          path: test/response.txt
-
-      - name: Upload log file
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: log
-          path: /tmp/log.txt
+          path: tests/response.txt
 
       - name: Shut down Docker Compose
         if: always()
