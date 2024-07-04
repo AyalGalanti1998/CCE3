@@ -177,12 +177,6 @@ jobs:
       - name: Load Docker images from previous workflows
         run: docker load --input /tmp/image.tar
 
-      - name: Download log artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: log
-          path: /tmp
-
       - name: Print log file contents
         run: cat /tmp/log.txt
 
@@ -192,18 +186,9 @@ jobs:
       - name: Run Docker Compose
         run: docker-compose up -d
 
-      - name: Wait for services to be healthy
-        run: |
-          echo "Waiting for services to be healthy..."
-          sleep 10  # Adjust the sleep time as needed
-
-      - name: Check container status
-        run: |
-          if docker ps --filter "ancestor=books:latest" --filter "status=running" -q && docker ps --filter "ancestor=mongo:latest" --filter "status=running" -q; then
-            echo -e "Container up and running" >> /tmp/log.txt
-          else
-            echo -e "Container failed to run" >> /tmp/log.txt
-          fi
+      - name: Wait for Container to Start
+        if: success()
+        run: sleep 10
 
       - name: Print log file contents
         run: cat /tmp/log.txt
