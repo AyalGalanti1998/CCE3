@@ -15,7 +15,7 @@ jobs:
         run: cat /tmp/log.txt
 
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set Up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -27,7 +27,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build and Export Docker Image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v3
         with:
           context: ./books
           tags: books:latest, ${{ secrets.DOCKER_USERNAME }}/books:latest
