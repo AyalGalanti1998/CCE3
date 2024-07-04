@@ -107,14 +107,14 @@ class Book(Resource):
         try:
             # Use the find_one method to retrieve the book by its ID from MongoDB
             book = books.find_one({'id': book_id})
-            if book:
+            if book is not None:
                 # If book is found, convert ObjectId to string if necessary and prepare the response
                 if '_id' in book:
                     book['bookID'] = str(book['_id'])  # Convert ObjectId to string and rename the key
                     del book['_id']  # Remove the original '_id' to avoid serialization issues
                     return jsonify(book)
-                else:
-                    return jsonify({'error': 'Book not found'}), 404
+            else:
+                return jsonify({'error': 'Book not found'}), 404
         except Exception as e:
             return jsonify({'error': 'Database operation failed', 'details': str(e)}), 500
 
