@@ -115,7 +115,7 @@ class Book(Resource):
                     return jsonify(book)
             else:
                 return jsonify({'error': 'Book not found'}), 404
-        except Exception:
+        except pymongo.errors.PyMongoError :
             return jsonify({'error': 'Book not found'}), 404
 
     def delete(self, book_id):
