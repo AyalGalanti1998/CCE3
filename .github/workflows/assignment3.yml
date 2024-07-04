@@ -15,7 +15,7 @@ jobs:
         run: cat /tmp/log.txt
 
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set Up Docker Buildx
         uses: docker/setup-buildx-action@v2
@@ -73,3 +73,4 @@ jobs:
       - name: Print Final Log File After Container Check
         if: success()
         run: cat /tmp/log.txt
+
