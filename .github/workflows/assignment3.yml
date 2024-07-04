@@ -204,22 +204,10 @@ jobs:
           pip install requests
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-      - name: Execute POST requests for books
+      - name: run query
         run: |
-          curl -X POST -H "Content-Type: application/json" -d '{"title":"Adventures of Huckleberry Finn","ISBN":"9780520343641","genre":"Fiction"}' http://localhost:5001/books
-          curl -X POST -H "Content-Type: application/json" -d '{"title":"The Best of Isaac Asimov","ISBN":"9780385050784","genre":"Science Fiction"}' http://localhost:5001/books
-          curl -X POST -H "Content-Type: application/json" -d '{"title":"Fear No Evil","ISBN":"9780394558783","genre":"Biography"}' http://localhost:5001/books
-          curl -X POST -H "Content-Type: application/json" -d '{"title":"The Adventures of Tom Sawyer","ISBN":"9780195810400","genre":"Fiction"}' http://localhost:5001/books
-          curl -X POST -H "Content-Type: application/json" -d '{"title":"I, Robot","ISBN":"9780553294385","genre":"Science Fiction"}' http://localhost:5001/books
-          curl -X POST -H "Content-Type: application/json" -d '{"title":"Second Foundation","ISBN":"9780553293364","genre":"Science Fiction"}' http://localhost:5001/books
-
-      - name: Read and execute queries
-        run: |
-          while read -r query; do
-            response=$(curl -s "http://localhost:5001/books$query")
-            echo "query: $query" >> tests/response.txt
-            echo "response: $response" >> tests/response.txt
-          done < query.txt
+          cd tests
+          python run_query.py
 
       - name: Upload response file
         uses: actions/upload-artifact@v4
