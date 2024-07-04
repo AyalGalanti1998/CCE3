@@ -4,12 +4,8 @@ from books_details import books
 import assn3_tests
 
 
-def post_books(book_details):
+def post_books():
     """Posts specific book details to a server endpoint.
-
-    Args:
-        book_details (list): A list of dictionaries containing book details.
-
     Raises:
         requests.exceptions.RequestException: If an error occurs during the POST request.
     """
@@ -48,7 +44,7 @@ def process_queries(input_file_path, output_file_path):
 
 # Main function to read queries, make requests, and save responses
 def main():
-    post_books()  # Ensure this function is defined elsewhere and is called here if needed
+    post_books()
     queries_file = '../query.txt'
     responses_file = 'response.txt'
     process_queries(queries_file, responses_file)
