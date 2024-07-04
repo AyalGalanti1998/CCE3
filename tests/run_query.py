@@ -49,6 +49,5 @@ def main():
     responses_file = 'response.txt'
     process_queries(queries_file, responses_file)
 
-
 if __name__ == "__main__":
     main()
