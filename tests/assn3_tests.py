@@ -45,7 +45,7 @@ def test_post_book_with_invalid_isbn():
 
 # Test 5
 def test_delete_book_successfully():
-    response = requests.delete(url=f"{BASE_URL}/{"books/{books_id_array[1]}"}",
+    response = requests.delete(url=f"{BASE_URL}/books/{books_id_array[1]}",
                                headers={"Content-Type": "application/json"})
     assert_status_code(response, [200])
 
