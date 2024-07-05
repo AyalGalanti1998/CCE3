@@ -16,12 +16,17 @@ books = db["books"]  # 'books' collection
 ratings = db["ratings"]  # 'ratings' collection
 usedIds = db["usedId"]
 
+field_details = { 'title','authors','ISBN','publisher',
+            'publishedDate','genre','id'}
 
 class Books(Resource):
     def get(self):
         query = {}
         for key, value in request.args.items():
-            query[key] = value
+            if key in field_details:
+                query[key] = value
+            else:
+                abort(422, message=f"Incorrect field name: {key}")
 
         try:
             # Fetching books based on query parameters
