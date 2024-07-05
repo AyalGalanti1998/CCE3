@@ -1,5 +1,5 @@
-?title=The Best of Isaac Asimov
+?title=Adventures of Huckleberry Finn
+?authorssssss=Anatoly Shcharansky
 ?authors=Anatoly Shcharansky
-?genre=Science Fiction
-?ISBN=9780553293364
-?IBN=9780553293364
+?genre=biography
+?ISBN=0000001111111

@@ -1,4 +1,3 @@
-import pytest
 import requests
 import json
 from books_details import books
@@ -6,6 +5,7 @@ from books_details import books
 BASE_URL = "http://127.0.0.1:5001"
 
 books_id_array = []
+
 
 # Test 1
 def test_post_books_successfully():
@@ -15,14 +15,19 @@ def test_post_books_successfully():
     assert_status_code(response2, [201])
     response3 = post_request("books", books[2])
     assert_status_code(response3, [201])
-    assert_valid_post_response(response1, response2, response3)
+    id1, id2, id3 = response1.json()['ID'], response2.json()['ID'], response3.json()['ID']
+    assert isinstance(id1, str) and isinstance(id2, str) and isinstance(id3, str)
+    assert id1 != id2
+    assert id1 != id3
+    assert id2 != id3
+    books_id_array.extend([id1, id2, id3])
 
 
 # Test 2
 def test_get_book_by_id_successfully():
     response = get_request(f"books/{books_id_array[0]}")
     assert_status_code(response, [200])
-    assert_ret_value(response, "authors", "Mark Twain")
+    assert response.json()["authors"] == "Mark Twain"
 
 
 # Test 3
@@ -40,7 +45,8 @@ def test_post_book_with_invalid_isbn():
 
 # Test 5
 def test_delete_book_successfully():
-    response = delete_request(f"books/{books_id_array[1]}")
+    response = requests.delete(url=f"{BASE_URL}/{"books/{books_id_array[1]}"}",
+                               headers={"Content-Type": "application/json"})
     assert_status_code(response, [200])
 
 
@@ -56,15 +62,9 @@ def test_post_book_with_invalid_genre():
     assert_status_code(response, [422])
 
 
-
 # Helper functions
 def get_request(resource: str):
     response = requests.get(url=f"{BASE_URL}/{resource}", headers={"Content-Type": "application/json"})
-    return response
-
-
-def delete_request(resource: str):
-    response = requests.delete(url=f"{BASE_URL}/{resource}", headers={"Content-Type": "application/json"})
     return response
 
 
@@ -76,20 +76,6 @@ def post_request(resource: str, data: {}):
 
 def assert_status_code(response: requests.Response, status_code: [int]):
     assert response.status_code in status_code
-
-
-def assert_ret_value(response: requests.Response, field: str, returned_value: any):
-    assert response.json()[field] == returned_value
-
-
-def assert_valid_post_response(response1: requests.Response, response2: requests.Response,
-                               response3: requests.Response):
-    id1, id2, id3 = response1.json()['ID'], response2.json()['ID'], response3.json()['ID']
-    assert isinstance(id1, str) and isinstance(id2, str) and isinstance(id3, str)
-    assert id1 != id2
-    assert id1 != id3
-    assert id2 != id3
-    books_id_array.extend([id1, id2, id3])
 
 
 def assert_length_and_types_of_array(response: requests.Response, length: int):

@@ -16,8 +16,9 @@ books = db["books"]  # 'books' collection
 ratings = db["ratings"]  # 'ratings' collection
 usedIds = db["usedId"]
 
-field_details = { 'title','authors','ISBN','publisher',
-            'publishedDate','genre','id'}
+field_details = {'title', 'authors', 'ISBN', 'publisher',
+                 'publishedDate', 'genre', 'id'}
+
 
 class Books(Resource):
     def get(self):
@@ -200,7 +201,10 @@ class Ratings(Resource):
         # Build the MongoDB query based on provided query  parameters
         for key, value in request.args.items():
             # Assume all values are stored as strings; modify if your schema differs
-            query[key] = value
+            if key in field_details:
+                query[key] = value
+            else:
+                abort(422, message=f"Incorrect field name: {key}")
 
         try:
             # Execute the query using MongoDB's find method
