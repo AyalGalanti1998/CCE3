@@ -92,7 +92,7 @@ jobs:
       # 4. Start the Docker containers using docker-compose
       - name: Start Docker Container
         if: success()
-        run: docker-compose up -d
+        run: docker compose up -d
 
       # 5. Wait for the containers to start
       - name: Wait for Container to Start
@@ -159,7 +159,7 @@ jobs:
       # 11. Shut down Docker Compose
       - name: Shut down Docker Compose
         if: always()
-        run: docker-compose down
+        run: docker compose down
 
   query:
     needs: test
@@ -181,7 +181,7 @@ jobs:
         run: docker image ls
 
       - name: Run Docker Compose
-        run: docker-compose up -d
+        run: docker compose up -d
 
       - name: Wait for Container to Start
         if: success()
@@ -216,4 +216,4 @@ jobs:
 
       - name: Shut down Docker Compose
         if: always()
-        run: docker-compose down
+        run: docker compose down
