@@ -33,7 +33,7 @@ def test_get_book_by_id_successfully():
 # Test 3
 def test_get_all_books_successfully():
     response = get_request("books")
-    assert_status_code(response, [404])
+    assert_status_code(response, [200])
     assert_length_and_types_of_array(response, 3)
 
 
