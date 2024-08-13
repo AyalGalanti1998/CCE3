@@ -1,1 +1,1 @@
-nir first commit
+This repository utilizes a GitHub Action to streamline the CI/CD process for a MongoDB-based book service. The workflow includes automated jobs for building the service, executing tests, and running queries against the database, ensuring that the application is properly maintained and performs as expected.
